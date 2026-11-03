@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+    <PackageId>Animaze.Client.DependencyInjection</PackageId>
+    <Title>Animaze.Client.DependencyInjection</Title>
+    <Description>DI extensions for Animaze.Client. Registers the client and its options in Microsoft.Extensions.DependencyInjection.</Description>
+    <PackageTags>animaze;client;di;ioc</PackageTags>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- DI extension methods live in the consumer-facing Animaze.Client namespace by convention. -->
+    <NoWarn>$(NoWarn);IDE0130</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Animaze.Client\Animaze.Client.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="MinVer" PrivateAssets="all" />
+    <PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

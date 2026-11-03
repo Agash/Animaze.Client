@@ -1,0 +1,12 @@
+<Solution>
+    <Folder Name="/samples/">
+        <Project Path="samples/Animaze.Client.Sample/Animaze.Client.Sample.csproj" />
+    </Folder>
+    <Folder Name="/src/">
+        <Project Path="src/Animaze.Client/Animaze.Client.csproj" />
+        <Project Path="src/Animaze.Client.DependencyInjection/Animaze.Client.DependencyInjection.csproj" />
+    </Folder>
+    <Folder Name="/tests/">
+        <Project Path="tests/Animaze.Client.Tests/Animaze.Client.Tests.csproj" />
+    </Folder>
+</Solution>
