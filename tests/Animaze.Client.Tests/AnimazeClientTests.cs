@@ -115,8 +115,14 @@ public sealed class AnimazeClientTests
         client.ChatPalSpeechStarted += (_, _) => started.TrySetResult();
         client.ChatPalSpeechEnded += (_, _) => ended.TrySetResult();
 
-        await animaze.PushAsync(new JsonObject { ["event"] = "ChatbotSpeechStarted" }, TestContext.CancellationToken);
-        await animaze.PushAsync(new JsonObject { ["event"] = "ChatbotSpeechEnded" }, TestContext.CancellationToken);
+        await animaze.PushAsync(
+            new JsonObject { ["event"] = "ChatbotSpeechStarted" },
+            TestContext.CancellationToken
+        );
+        await animaze.PushAsync(
+            new JsonObject { ["event"] = "ChatbotSpeechEnded" },
+            TestContext.CancellationToken
+        );
 
         await started.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.CancellationToken);
         await ended.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.CancellationToken);

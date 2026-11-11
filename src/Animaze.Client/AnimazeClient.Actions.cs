@@ -205,10 +205,17 @@ public sealed partial class AnimazeClient
     /// <param name="message">The prompt.</param>
     /// <param name="ct">Cancels the request.</param>
     /// <returns>ChatPal's reply, or an empty string when Animaze sends none.</returns>
-    public async Task<string> SendChatPalMessageAsync(string message, CancellationToken ct = default)
+    public async Task<string> SendChatPalMessageAsync(
+        string message,
+        CancellationToken ct = default
+    )
     {
         ArgumentNullException.ThrowIfNull(message);
-        JsonElement reply = await SendAsync("ChatbotSendMessage", new JsonObject { ["message"] = message }, ct)
+        JsonElement reply = await SendAsync(
+                "ChatbotSendMessage",
+                new JsonObject { ["message"] = message },
+                ct
+            )
             .ConfigureAwait(false);
         return Read.String(reply, "response") ?? string.Empty;
     }
@@ -222,7 +229,11 @@ public sealed partial class AnimazeClient
     public Task SpeakAsync(string text, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(text);
-        return SendAsync("ChatbotSendMessage", new JsonObject { ["message"] = "-echo " + text }, ct);
+        return SendAsync(
+            "ChatbotSendMessage",
+            new JsonObject { ["message"] = "-echo " + text },
+            ct
+        );
     }
 
     private static JsonObject Transform(AnimazeTransform transform) =>
