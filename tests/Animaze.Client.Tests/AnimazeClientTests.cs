@@ -104,6 +104,50 @@ public sealed class AnimazeClientTests
 
     [TestMethod]
     [Timeout(30_000, CooperativeCancellation = true)]
+    public async Task ChatPalSpeechEvents_AreRaised()
+    {
+        await using FakeAnimaze animaze = await FakeAnimaze.StartAsync(static _ => []);
+        await using AnimazeClient client = await animaze.ConnectAsync(
+            TestContext.CancellationToken
+        );
+        TaskCompletionSource started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource ended = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        client.ChatPalSpeechStarted += (_, _) => started.TrySetResult();
+        client.ChatPalSpeechEnded += (_, _) => ended.TrySetResult();
+
+        await animaze.PushAsync(new JsonObject { ["event"] = "ChatbotSpeechStarted" }, TestContext.CancellationToken);
+        await animaze.PushAsync(new JsonObject { ["event"] = "ChatbotSpeechEnded" }, TestContext.CancellationToken);
+
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.CancellationToken);
+        await ended.Task.WaitAsync(TimeSpan.FromSeconds(10), TestContext.CancellationToken);
+    }
+
+    [TestMethod]
+    [Timeout(30_000, CooperativeCancellation = true)]
+    public async Task ChatPal_ReturnsTheReplyAndSpeakEchoes()
+    {
+        System.Collections.Concurrent.ConcurrentQueue<string> sent = new();
+        await using FakeAnimaze animaze = await FakeAnimaze.StartAsync(request =>
+        {
+            sent.Enqueue(request["message"]!.GetValue<string>());
+            return new JsonObject { ["response"] = "Hello there" };
+        });
+        await using AnimazeClient client = await animaze.ConnectAsync(
+            TestContext.CancellationToken
+        );
+
+        string reply = await client.SendChatPalMessageAsync("hi", TestContext.CancellationToken);
+        await client.SpeakAsync("word for word", TestContext.CancellationToken);
+
+        Assert.AreEqual("Hello there", reply);
+        string[] messages = [.. sent];
+        Assert.HasCount(2, messages);
+        Assert.AreEqual("hi", messages[0]);
+        Assert.AreEqual("-echo word for word", messages[1]);
+    }
+
+    [TestMethod]
+    [Timeout(30_000, CooperativeCancellation = true)]
     public async Task SendAsync_NoReply_TimesOut()
     {
         await using FakeAnimaze animaze = await FakeAnimaze.StartAsync(static _ => null);

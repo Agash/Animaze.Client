@@ -199,11 +199,31 @@ public sealed partial class AnimazeClient
     public Task CalibrateTrackerAsync(CancellationToken ct = default) =>
         SendAsync("CalibrateTracker", ct: ct);
 
-    /// <summary>Sends a message to Animaze's ChatPal.</summary>
-    /// <param name="message">What to say.</param>
+    /// <summary>
+    /// Sends a prompt to Animaze's ChatPal. The avatar speaks ChatPal's reply, and the reply is returned.
+    /// </summary>
+    /// <param name="message">The prompt.</param>
     /// <param name="ct">Cancels the request.</param>
-    public Task SendChatPalMessageAsync(string message, CancellationToken ct = default) =>
-        SendAsync("ChatbotSendMessage", new JsonObject { ["message"] = message }, ct);
+    /// <returns>ChatPal's reply, or an empty string when Animaze sends none.</returns>
+    public async Task<string> SendChatPalMessageAsync(string message, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        JsonElement reply = await SendAsync("ChatbotSendMessage", new JsonObject { ["message"] = message }, ct)
+            .ConfigureAwait(false);
+        return Read.String(reply, "response") ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Has the avatar speak <paramref name="text"/> word for word through ChatPal's voice, without asking the AI.
+    /// Animaze's API documents this as a ChatPal message starting with <c>-echo</c>.
+    /// </summary>
+    /// <param name="text">What to say.</param>
+    /// <param name="ct">Cancels the request.</param>
+    public Task SpeakAsync(string text, CancellationToken ct = default)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        return SendAsync("ChatbotSendMessage", new JsonObject { ["message"] = "-echo " + text }, ct);
+    }
 
     private static JsonObject Transform(AnimazeTransform transform) =>
         new()

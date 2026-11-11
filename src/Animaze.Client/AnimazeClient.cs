@@ -46,6 +46,15 @@ public sealed partial class AnimazeClient : IAsyncDisposable
     /// <summary>Raised when the loaded avatar changes, from any source.</summary>
     public event EventHandler<AvatarChangedEventArgs>? AvatarChanged;
 
+    /// <summary>
+    /// Raised when ChatPal starts speaking. Animaze's timing depends on the voice engine and can be up to a second
+    /// early.
+    /// </summary>
+    public event EventHandler? ChatPalSpeechStarted;
+
+    /// <summary>Raised when ChatPal stops speaking; up to a second late, as <see cref="ChatPalSpeechStarted"/>.</summary>
+    public event EventHandler? ChatPalSpeechEnded;
+
     /// <summary>Raised for every event Animaze pushes, including ones this client has no typed event for.</summary>
     public event EventHandler<AnimazeEventArgs>? EventReceived;
 
@@ -297,12 +306,20 @@ public sealed partial class AnimazeClient : IAsyncDisposable
         {
             string eventName = name.GetString()!;
             EventReceived?.Invoke(this, new AnimazeEventArgs(eventName, root));
-            if (eventName == "AvatarChanged")
+            switch (eventName)
             {
-                AvatarChanged?.Invoke(
-                    this,
-                    new AvatarChangedEventArgs(Read.String(root, "new_avatar") ?? string.Empty)
-                );
+                case "AvatarChanged":
+                    AvatarChanged?.Invoke(
+                        this,
+                        new AvatarChangedEventArgs(Read.String(root, "new_avatar") ?? string.Empty)
+                    );
+                    break;
+                case "ChatbotSpeechStarted":
+                    ChatPalSpeechStarted?.Invoke(this, EventArgs.Empty);
+                    break;
+                case "ChatbotSpeechEnded":
+                    ChatPalSpeechEnded?.Invoke(this, EventArgs.Empty);
+                    break;
             }
 
             return;
